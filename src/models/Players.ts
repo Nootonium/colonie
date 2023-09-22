@@ -1,25 +1,31 @@
 import { Position } from '../types';
 
-type PlayerType = 'human' | 'local-bot' | 'server-bot';
+export type PlayerType = 'human' | 'local-bot' | 'server-bot';
 
-interface Player {
+export interface Player {
     getPlayerType(): PlayerType;
-    makeMove(gameState: any): Promise<Position>;
+    makeMove(gameState: any): Promise<Position[]>;
 }
-class HumanPlayer implements Player {
-    async makeMove(gameState: any): Promise<Position> {
-        // This function would somehow get the move from the UI.
-        // This could involve a user clicking on the board, etc.
-        return { row: 0, col: 0 };
+export class HumanPlayer implements Player {
+    async makeMove(gameState: any): Promise<Position[]> {
+        return new Promise(resolve => {
+            this.moves = [];
+            const unsubscribe = gameState.onMove((position: Position) => {
+                this.moves.push(position);
+                if (this.moves.length === 2) {
+                    unsubscribe();
+                    resolve(this.moves);
+                }
+            });
+        });
     }
-
     getPlayerType(): PlayerType {
         return 'human';
     }
 }
 
-class RandomAgentPlayer implements Player {
-    async makeMove(gameState: any): Promise<Position> {
+export class RandomAgentPlayer implements Player {
+    async makeMove(gameState: any): Promise<Position[]> {
         // This function would somehow get the move from the UI.
         // This could involve a user clicking on the board, etc.
         const validMoves = gameState.getValidMoves();
@@ -32,8 +38,8 @@ class RandomAgentPlayer implements Player {
     }
 }
 
-class ServerAgentPlayer implements Player {
-    async makeMove(gameState: any): Promise<Position> {
+export class ServerAgentPlayer implements Player {
+    async makeMove(gameState: any): Promise<Position[]> {
         // Send the gameState to the server.
         const response = await fetch('server_endpoint', {
             method: 'POST',

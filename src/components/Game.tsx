@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Board from './Board';
 import { GameBoard, currentPlayer, INITIAL_BOARD_STATE } from '../models/GameBoard';
 import { Position } from '../types';
+import { Player } from '../models/Players';
 
 const Game = () => {
     const [game, setGame] = useState(new GameBoard(INITIAL_BOARD_STATE, currentPlayer.WHITE));
@@ -10,6 +11,8 @@ const Game = () => {
     const [highlightedJumps, setHighlightedJumps] = useState<Position[]>([]);
     const [feedback, setFeedback] = useState<string>('');
     const [currentTurn, setCurrentTurn] = useState<currentPlayer>(currentPlayer.WHITE);
+    const [whitePlayer, setWhitePlayer] = useState<Player>();
+    const [blackPlayer, setBlackPlayer] = useState<Player>();
 
     const setPiecesForPossibleMoves = (possibleCopies: Position[], possibleJumps: Position[]) => {
         setHighlightedCopies(possibleCopies);
@@ -88,12 +91,14 @@ const Game = () => {
 
     return (
         <div className="flex flex-col items-center text-white">
-            <div
-                className={`transform p-1 text-white transition-transform ${
-                    currentTurn === currentPlayer.WHITE ? 'scale-105' : 'scale-95'
-                }`}
-            >
-                It's {currentTurn === currentPlayer.WHITE ? 'White' : 'Black'}'s turn.
+            <div>
+                <div
+                    className={`transform p-1 text-white transition-transform ${
+                        currentTurn === currentPlayer.WHITE ? 'scale-105' : 'scale-95'
+                    }`}
+                >
+                    It's {currentTurn === currentPlayer.WHITE ? 'White' : 'Black'}'s turn.
+                </div>
             </div>
 
             <Board
