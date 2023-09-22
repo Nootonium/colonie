@@ -1,4 +1,4 @@
-type CellValue = 'white' | 'black' | 'red' | 'green' | null;
+import { CellValue } from '../types';
 
 interface CellProps {
     value: CellValue;
@@ -15,13 +15,16 @@ const Cell = ({ value, onClick }: CellProps) => {
             backgroundColor = 'bg-black';
             break;
         case 'red':
-            backgroundColor = 'bg-red-500'; // Assuming you're using TailwindCSS
+            backgroundColor = 'bg-red-500';
             break;
         case 'green':
-            backgroundColor = 'bg-green-500'; // Assuming you're using TailwindCSS
+            backgroundColor = 'bg-green-500';
+            break;
+        case 'blue':
+            backgroundColor = 'bg-blue-500';
             break;
         default:
-            backgroundColor = 'bg-gray-300';
+            backgroundColor = 'bg-neutral-500';
             break;
     }
 

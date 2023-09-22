@@ -1,4 +1,4 @@
-import Board from '../components/Board';
+import Game from '../components/Game';
 import SettingsModal from '../components/SettingsModal';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
@@ -7,10 +7,15 @@ function Home() {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     return (
-        <div className="relative flex h-screen w-screen items-center justify-center bg-gradient-to-r from-red-500 via-yellow-500 to-cyan-500">
-            <div className="rounded bg-black p-4">
+        <div className="relative flex h-screen w-screen items-center justify-center ">
+            <img
+                src="planet.gif"
+                alt="planet"
+                className="absolute left-0 top-0 -z-10 h-full w-full object-cover object-center"
+            />
+            <div className="rounded bg-black/80 p-2">
                 <h1 className="text-center text-2xl font-bold">
-                    <Board />
+                    <Game />
                 </h1>
             </div>
             <div className="absolute left-8 top-8 z-30" onClick={() => setIsSettingsOpen(true)}>

@@ -1,4 +1,4 @@
-import Position from './Position';
+import { Position } from '../types';
 
 enum currentPlayer {
     WHITE = 'white',
@@ -156,6 +156,12 @@ class GameBoard {
     getWinner() {
         // Logic to determine the winner.
         const { white, black } = this.getScores();
+        if (white === 0) {
+            return 'black';
+        } else if (black === 0) {
+            return 'white';
+        }
+
         if (white > black) {
             return 'white';
         } else if (white < black) {
@@ -179,10 +185,28 @@ class GameBoard {
     getJumpPositions(position: Position): Position[] {
         const { row, col } = position;
         const possibleJumps: Position[] = [
-            { row: row - 2, col: col },
-            { row: row + 2, col: col },
-            { row: row, col: col - 2 },
-            { row: row, col: col + 2 },
+            { row: row - 2, col: col }, // Up
+            { row: row + 2, col: col }, // Down
+            { row: row, col: col - 2 }, // Left
+            { row: row, col: col + 2 }, // Right
+
+            // Diagonal Jumps
+            { row: row - 2, col: col - 2 }, // Top-left
+            { row: row - 2, col: col + 2 }, // Top-right
+            { row: row + 2, col: col - 2 }, // Bottom-left
+            { row: row + 2, col: col + 2 }, // Bottom-right
+
+            // Side Jumps (Horizontal)
+            { row: row - 1, col: col - 2 }, // Upper-left
+            { row: row - 1, col: col + 2 }, // Upper-right
+            { row: row + 1, col: col - 2 }, // Lower-left
+            { row: row + 1, col: col + 2 }, // Lower-right
+
+            // Side Jumps (Vertical)
+            { row: row - 2, col: col - 1 }, // Left-upper
+            { row: row - 2, col: col + 1 }, // Right-upper
+            { row: row + 2, col: col - 1 }, // Left-lower
+            { row: row + 2, col: col + 1 }, // Right-lower
         ];
 
         return possibleJumps.filter(
