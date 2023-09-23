@@ -21,7 +21,7 @@ const Cell = ({ value, onClick }: CellProps) => {
             backgroundColor = 'bg-green-500';
             break;
         case 'blue':
-            backgroundColor = 'bg-blue-500';
+            backgroundColor = 'bg-sky-500';
             break;
         default:
             backgroundColor = 'bg-neutral-500';
@@ -30,7 +30,7 @@ const Cell = ({ value, onClick }: CellProps) => {
 
     return (
         <button
-            className={`h-10 w-10 border border-gray-500 ${backgroundColor}`}
+            className={`h-10 w-10 border border-gray-500 ${backgroundColor} sm:h-16 sm:w-16`}
             onClick={onClick}
         ></button>
     );

@@ -1,6 +1,6 @@
 import { Position } from '../types';
 
-enum currentPlayer {
+enum PlayerColor {
     WHITE = 'white',
     BLACK = 'black',
 }
@@ -11,7 +11,7 @@ enum MoveType {
     INVALID,
 }
 
-type BoardState = (currentPlayer | null)[][];
+type BoardState = (PlayerColor | null)[][];
 
 const INITIAL_BOARD_STATE: BoardState = Array(7)
     .fill(null)
@@ -19,17 +19,17 @@ const INITIAL_BOARD_STATE: BoardState = Array(7)
         return Array(7)
             .fill(null)
             .map((_, colIndex) => {
-                if (rowIndex === 0 && colIndex === 3) return currentPlayer.BLACK;
-                if (rowIndex === 6 && colIndex === 3) return currentPlayer.WHITE;
+                if (rowIndex === 0 && colIndex === 3) return PlayerColor.BLACK;
+                if (rowIndex === 6 && colIndex === 3) return PlayerColor.WHITE;
                 return null;
             });
     });
 
 class GameBoard {
     board: BoardState;
-    currentTurn: currentPlayer;
+    currentTurn: PlayerColor;
 
-    constructor(newBoard: BoardState, currentTurn: currentPlayer) {
+    constructor(newBoard: BoardState, currentTurn: PlayerColor) {
         this.board = newBoard;
         this.currentTurn = currentTurn;
     }
@@ -98,7 +98,7 @@ class GameBoard {
         this.convertOpponentPieces(target);
 
         // Switch the current turn
-        this.switchTurn();
+        //this.switchTurn();
 
         return true;
     }
@@ -115,10 +115,10 @@ class GameBoard {
     }
 
     switchTurn(): void {
-        if (this.currentTurn === currentPlayer.WHITE) {
-            this.currentTurn = currentPlayer.BLACK;
+        if (this.currentTurn === PlayerColor.WHITE) {
+            this.currentTurn = PlayerColor.BLACK;
         } else {
-            this.currentTurn = currentPlayer.WHITE;
+            this.currentTurn = PlayerColor.WHITE;
         }
     }
 
@@ -227,6 +227,19 @@ class GameBoard {
             jumps: this.getJumpPositions(position),
         };
     }
+    getPositionsOfPlayer(playerColor: PlayerColor): Position[] {
+        const positions: Position[] = [];
+
+        for (let i = 0; i < this.board.length; i++) {
+            for (let j = 0; j < this.board[i].length; j++) {
+                if (this.board[i][j] === playerColor) {
+                    positions.push({ row: i, col: j });
+                }
+            }
+        }
+
+        return positions;
+    }
 }
 
-export { GameBoard, currentPlayer, INITIAL_BOARD_STATE };
+export { GameBoard, PlayerColor, INITIAL_BOARD_STATE, MoveType };

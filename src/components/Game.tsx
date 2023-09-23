@@ -1,18 +1,23 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Board from './Board';
-import { GameBoard, currentPlayer, INITIAL_BOARD_STATE } from '../models/GameBoard';
+import { GameBoard, PlayerColor, INITIAL_BOARD_STATE } from '../models/GameBoard';
 import { Position } from '../types';
-import { Player } from '../models/Players';
+import { PlayerType, createPlayer, Player } from '../models/Players';
 
-const Game = () => {
-    const [game, setGame] = useState(new GameBoard(INITIAL_BOARD_STATE, currentPlayer.WHITE));
+interface GameProps {
+    whitePlayerType: PlayerType;
+    blackPlayerType: PlayerType;
+}
+
+const Game = ({ whitePlayerType, blackPlayerType }: GameProps) => {
+    const [whitePlayer] = useState(() => createPlayer(whitePlayerType, PlayerColor.WHITE));
+    const [blackPlayer] = useState(() => createPlayer(blackPlayerType, PlayerColor.BLACK));
+    const [currentPlayer, setCurrentPlayer] = useState<Player>(whitePlayer);
+    const [game] = useState(new GameBoard(INITIAL_BOARD_STATE, PlayerColor.WHITE));
     const [selectedPiece, setSelectedPiece] = useState<Position | null>(null);
     const [highlightedCopies, setHighlightedCopies] = useState<Position[]>([]);
     const [highlightedJumps, setHighlightedJumps] = useState<Position[]>([]);
     const [feedback, setFeedback] = useState<string>('');
-    const [currentTurn, setCurrentTurn] = useState<currentPlayer>(currentPlayer.WHITE);
-    const [whitePlayer, setWhitePlayer] = useState<Player>();
-    const [blackPlayer, setBlackPlayer] = useState<Player>();
 
     const setPiecesForPossibleMoves = (possibleCopies: Position[], possibleJumps: Position[]) => {
         setHighlightedCopies(possibleCopies);
@@ -24,92 +29,106 @@ const Game = () => {
         setHighlightedJumps([]);
     };
 
-    const handleSquareClick = (clickedPosition: Position) => {
-        if (!selectedPiece) {
-            handleNoSelectedPiece(clickedPosition);
-        } else {
-            handleAlreadySelectedPiece(clickedPosition);
-        }
-    };
-
-    const handleNoSelectedPiece = (clickedPosition: Position) => {
-        if (game.isPositionOwnedByCurrentPlayer(clickedPosition)) {
-            selectAndHighlightPiece(clickedPosition);
-        } else {
-            console.error("The clicked piece doesn't belong to the current player.");
-            setFeedback("It's not your turn.");
+    const handleSquareClick = async (clickedPosition: Position) => {
+        if (currentPlayer.getPlayerType() === 'human') {
+            try {
+                const movePositions = await currentPlayer.makeMove(game, clickedPosition);
+                switch (movePositions.length) {
+                    case 0:
+                        deselectPiece();
+                        break;
+                    case 1:
+                        selectAndHighlightPiece(movePositions[0]);
+                        break;
+                    case 2:
+                        attemptMoveTo(movePositions[0], movePositions[1]);
+                        break;
+                }
+            } catch (error: any) {
+                console.error(error.message);
+                setFeedback(error.message);
+            }
         }
     };
 
     const selectAndHighlightPiece = (position: Position) => {
         setSelectedPiece(position);
-        console.log('Selected piece: ', position);
 
         const possibleMoves = game.getPossibleMoves(position);
-        console.log('Possible moves: ', possibleMoves);
 
         setPiecesForPossibleMoves(possibleMoves.copies, possibleMoves.jumps);
     };
 
-    const handleAlreadySelectedPiece = (clickedPosition: Position) => {
-        if (isSamePosition(clickedPosition, selectedPiece)) {
-            deselectPiece();
-        } else {
-            attemptMoveTo(clickedPosition);
-        }
-    };
+    const changePlayerTurn = useCallback(() => {
+        game.switchTurn();
+        setCurrentPlayer(prevPlayer => (prevPlayer === whitePlayer ? blackPlayer : whitePlayer));
+    }, [whitePlayer, blackPlayer, game]);
 
-    const isSamePosition = (pos1: Position, pos2: Position | null) => {
-        if (!pos2) return false;
-        return pos1.row === pos2.row && pos1.col === pos2.col;
-    };
-
-    const deselectPiece = () => {
+    const deselectPiece = useCallback(() => {
         setSelectedPiece(null);
         resetBoardHighlights();
-    };
-    const switchTurn = () => {
-        setCurrentTurn(prevTurn =>
-            prevTurn === currentPlayer.WHITE ? currentPlayer.BLACK : currentPlayer.WHITE
-        );
-    };
+    }, []);
 
-    const attemptMoveTo = (destination: Position) => {
-        if (!selectedPiece) return; // This should never happen.
-        const moveSuccessful = game.makeMove(selectedPiece, destination);
+    const attemptMoveTo = useCallback(
+        (start: Position, destination: Position) => {
+            const moveSuccessful = game.makeMove(start, destination);
 
-        if (moveSuccessful) {
-            console.log(game.getScores());
-            deselectPiece();
-            setFeedback('');
-            switchTurn();
-        } else {
-            console.error('Invalid destination.');
-            setFeedback("Can't move there.");
-        }
-    };
+            if (moveSuccessful) {
+                console.log(game.getScores());
+                deselectPiece();
+                setFeedback('');
+                changePlayerTurn();
+            } else {
+                console.error('Invalid destination.');
+                setFeedback("Can't move there.");
+            }
+        },
+        [game, deselectPiece, changePlayerTurn]
+    );
+    useEffect(() => {
+        const makeAgentMove = async () => {
+            if (currentPlayer.getPlayerType() !== 'human') {
+                try {
+                    const movePositions = await currentPlayer.makeMove(game);
+                    if (movePositions && movePositions.length === 2) {
+                        attemptMoveTo(movePositions[0], movePositions[1]);
+                    }
+                } catch (error: any) {
+                    console.error(error.message);
+                    setFeedback(error.message);
+                }
+            }
+        };
+        makeAgentMove();
+    }, [currentPlayer, attemptMoveTo, game]);
 
     return (
-        <div className="flex flex-col items-center text-white">
-            <div>
-                <div
-                    className={`transform p-1 text-white transition-transform ${
-                        currentTurn === currentPlayer.WHITE ? 'scale-105' : 'scale-95'
-                    }`}
-                >
-                    It's {currentTurn === currentPlayer.WHITE ? 'White' : 'Black'}'s turn.
+        <div className="inline-flex flex-col items-center space-y-2 text-white">
+            <div className="flex h-16 w-full flex-row rounded bg-black/80">
+                <div className="flex-grow px-4 py-1 text-lg font-semibold text-white ">
+                    <div className="">Turn : {currentPlayer.color.toUpperCase()}</div>
+
+                    <div className="">Score : {game.getScores()[currentPlayer.color]}</div>
                 </div>
+                <button
+                    className="m-2 w-24 rounded bg-sky-500 text-black"
+                    onClick={changePlayerTurn}
+                >
+                    Pass
+                </button>
             </div>
-
-            <Board
-                board={game.board}
-                selectedPiece={selectedPiece}
-                highlightedCopies={highlightedCopies}
-                highlightedJumps={highlightedJumps}
-                handleSquareClick={handleSquareClick}
-            />
-
-            <div className="feedback-label">{feedback}</div>
+            <div className="flex rounded bg-black/60 p-1">
+                <Board
+                    board={game.board}
+                    selectedPiece={selectedPiece}
+                    highlightedCopies={highlightedCopies}
+                    highlightedJumps={highlightedJumps}
+                    handleSquareClick={handleSquareClick}
+                />
+            </div>
+            <div className="h-20 min-w-full max-w-xs rounded bg-black/80 p-1">
+                <div className="p-2 font-bold">{feedback}</div>
+            </div>
         </div>
     );
 };

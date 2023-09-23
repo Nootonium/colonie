@@ -13,11 +13,9 @@ function Home() {
                 alt="planet"
                 className="absolute left-0 top-0 -z-10 h-full w-full object-cover object-center"
             />
-            <div className="rounded bg-black/80 p-2">
-                <h1 className="text-center text-2xl font-bold">
-                    <Game />
-                </h1>
-            </div>
+
+            <Game whitePlayerType="human" blackPlayerType="local-agent" />
+
             <div className="absolute left-8 top-8 z-30" onClick={() => setIsSettingsOpen(true)}>
                 <Cog6ToothIcon className="h-14 w-14 text-white" />
             </div>

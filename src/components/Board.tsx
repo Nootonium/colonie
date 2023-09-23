@@ -17,7 +17,7 @@ const Board = ({
     handleSquareClick,
 }: BoardProps) => {
     return (
-        <div className="flex justify-center px-1">
+        <div className="flex justify-center ">
             <div className="grid grid-cols-7 gap-1">
                 {board.map((row, rowIndex) =>
                     row.map((cell, colIndex) => {
