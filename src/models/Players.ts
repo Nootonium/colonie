@@ -58,33 +58,44 @@ export class RandomAgentPlayer extends Player {
             throw new Error('No pieces left for the player.');
         }
 
-        let allMovesForPiece: Position[] = [];
-        let randomPiecePosition: Position;
-
-        // Loop until a piece with valid moves is found or all pieces are checked
-        while (allPiecePositions.length > 0) {
-            const randomPieceIndex = Math.floor(Math.random() * allPiecePositions.length);
-            randomPiecePosition = allPiecePositions.splice(randomPieceIndex, 1)[0]; // This will remove the piece from the list
-
-            const { copies, jumps } = gameState.getPossibleMoves(randomPiecePosition);
-
-            // Combine the copy and jump moves into one list
-            allMovesForPiece = [...copies, ...jumps];
-
-            if (allMovesForPiece.length > 0) {
-                break; // Found a piece with valid moves, exit the loop
-            }
-        }
-
-        if (allMovesForPiece.length === 0) {
+        const validPiece = this.getRandomPieceWithValidMoves(gameState, allPiecePositions);
+        if (!validPiece) {
             throw new Error('No valid moves for any pieces.');
         }
 
-        const randomMoveIndex = Math.floor(Math.random() * allMovesForPiece.length);
-        const randomMovePosition = allMovesForPiece[randomMoveIndex];
+        const randomMove = this.getRandomMove(gameState, validPiece);
+        return [validPiece, randomMove];
+    }
 
-        // Return the move: [starting position, target position]
-        return [randomPiecePosition, randomMovePosition];
+    private getRandomPieceWithValidMoves(
+        gameState: GameBoard,
+        pieces: Position[]
+    ): Position | null {
+        const shuffledPieces = this.shuffleArray([...pieces]);
+
+        for (const piece of shuffledPieces) {
+            const possibleMoves = gameState.getPossibleMoves(piece);
+            if (possibleMoves.copies.length > 0 || possibleMoves.jumps.length > 0) {
+                return piece;
+            }
+        }
+
+        return null;
+    }
+
+    private getRandomMove(gameState: GameBoard, piece: Position): Position {
+        const { copies, jumps } = gameState.getPossibleMoves(piece);
+        const allMoves = [...copies, ...jumps];
+        const randomIndex = Math.floor(Math.random() * allMoves.length);
+        return allMoves[randomIndex];
+    }
+
+    private shuffleArray(array: any[]): any[] {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
 
     getPlayerType(): PlayerType {

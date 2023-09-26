@@ -38,16 +38,12 @@ class GameBoard {
         const rowDiff = Math.abs(target.row - start.row);
         const colDiff = Math.abs(target.col - start.col);
 
-        // Check for piece presence
         if (this.board[start.row][start.col] !== this.currentTurn) return MoveType.INVALID;
 
-        // Check for empty target
         if (this.board[target.row][target.col] !== null) return MoveType.INVALID;
 
-        // Copy Move
         if (rowDiff <= 1 && colDiff <= 1) return MoveType.COPY;
 
-        // Jump Move
         if ((rowDiff === 2 && colDiff <= 2) || (colDiff === 2 && rowDiff <= 2))
             return MoveType.JUMP;
 
@@ -61,14 +57,12 @@ class GameBoard {
 
         for (const dRow of directions) {
             for (const dCol of directions) {
-                // Skip the center (0, 0) direction which represents the original position
                 if (dRow !== 0 || dCol !== 0) {
                     adjacentPositions.push({ row: row + dRow, col: col + dCol });
                 }
             }
         }
 
-        // Filter out positions that are outside the board's boundaries.
         return adjacentPositions.filter(
             pos =>
                 pos.row >= 0 &&
@@ -86,19 +80,13 @@ class GameBoard {
             return false;
         }
 
-        // Update the board
         this.board[target.row][target.col] = this.currentTurn;
 
         if (moveType === MoveType.JUMP) {
-            // If it's a jump move, clear the starting position.
             this.board[start.row][start.col] = null;
         }
 
-        // Convert opponent pieces
         this.convertOpponentPieces(target);
-
-        // Switch the current turn
-        //this.switchTurn();
 
         return true;
     }
@@ -154,7 +142,6 @@ class GameBoard {
     }
 
     getWinner() {
-        // Logic to determine the winner.
         const { white, black } = this.getScores();
         if (white === 0) {
             return 'black';
@@ -176,37 +163,33 @@ class GameBoard {
     }
 
     getCopyPositions(position: Position): Position[] {
-        // Get adjacent positions
         const adjacent = this.getAdjacentPieces(position);
 
-        // Filter for positions that are empty
         return adjacent.filter(pos => this.board[pos.row][pos.col] === null);
     }
     getJumpPositions(position: Position): Position[] {
         const { row, col } = position;
         const possibleJumps: Position[] = [
-            { row: row - 2, col: col }, // Up
-            { row: row + 2, col: col }, // Down
-            { row: row, col: col - 2 }, // Left
-            { row: row, col: col + 2 }, // Right
+            { row: row - 2, col: col },
+            { row: row + 2, col: col },
+            { row: row, col: col - 2 },
+            { row: row, col: col + 2 },
 
-            // Diagonal Jumps
-            { row: row - 2, col: col - 2 }, // Top-left
-            { row: row - 2, col: col + 2 }, // Top-right
-            { row: row + 2, col: col - 2 }, // Bottom-left
-            { row: row + 2, col: col + 2 }, // Bottom-right
+            { row: row - 2, col: col - 2 },
+            { row: row - 2, col: col + 2 },
+            { row: row + 2, col: col - 2 },
+            { row: row + 2, col: col + 2 },
 
-            // Side Jumps (Horizontal)
-            { row: row - 1, col: col - 2 }, // Upper-left
-            { row: row - 1, col: col + 2 }, // Upper-right
-            { row: row + 1, col: col - 2 }, // Lower-left
-            { row: row + 1, col: col + 2 }, // Lower-right
+            { row: row - 1, col: col - 2 },
+            { row: row - 1, col: col + 2 },
+            { row: row + 1, col: col - 2 },
+            { row: row + 1, col: col + 2 },
 
             // Side Jumps (Vertical)
-            { row: row - 2, col: col - 1 }, // Left-upper
-            { row: row - 2, col: col + 1 }, // Right-upper
-            { row: row + 2, col: col - 1 }, // Left-lower
-            { row: row + 2, col: col + 1 }, // Right-lower
+            { row: row - 2, col: col - 1 },
+            { row: row - 2, col: col + 1 },
+            { row: row + 2, col: col - 1 },
+            { row: row + 2, col: col + 1 },
         ];
 
         return possibleJumps.filter(
