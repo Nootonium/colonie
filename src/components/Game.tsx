@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import Board from './Board';
 import { GameBoard, PlayerColor, INITIAL_BOARD_STATE } from '../models/GameBoard';
-import { Position } from '../types';
-import { PlayerType, createPlayer, Player } from '../models/Players';
+import { Position, PlayerType } from '../types';
+import { createPlayer, Player } from '../models/Players';
 
 interface GameProps {
     whitePlayerType: PlayerType;

@@ -1,7 +1,6 @@
 import { Position } from '../types';
 import { MoveType, PlayerColor, GameBoard } from './GameBoard';
-
-export type PlayerType = 'human' | 'local-agent' | 'server-bot';
+import { PlayerType } from '../types';
 
 export abstract class Player {
     color: PlayerColor;

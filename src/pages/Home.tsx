@@ -19,9 +19,8 @@ function Home() {
             <div className="absolute left-8 top-8 z-30" onClick={() => setIsSettingsOpen(true)}>
                 <Cog6ToothIcon className="h-14 w-14 text-white" />
             </div>
-            {isSettingsOpen && (
-                <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
-            )}
+
+            <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
         </div>
     );
 }

@@ -185,7 +185,6 @@ class GameBoard {
             { row: row + 1, col: col - 2 },
             { row: row + 1, col: col + 2 },
 
-            // Side Jumps (Vertical)
             { row: row - 2, col: col - 1 },
             { row: row - 2, col: col + 1 },
             { row: row + 2, col: col - 1 },
