@@ -33,6 +33,7 @@ export class HumanPlayer extends Player {
                 const moveType = gameState.isMoveValid(this.selectedPosition, clickedPosition);
                 if (moveType !== MoveType.INVALID) {
                     const move = [this.selectedPosition, clickedPosition];
+                    // console.log('Move made: ', move);
                     this.selectedPosition = null;
                     return move;
                 } else {
@@ -105,14 +106,40 @@ export class RandomAgentPlayer extends Player {
 export class ServerAgentPlayer extends Player {
     async makeMove(gameState: any): Promise<Position[]> {
         // Send the gameState to the server.
-        const response = await fetch('server_endpoint', {
+        const server_endpoint = `http://localhost:8080/game`;
+        const flatBoard = gameState.board.flat().map((cell: string | null) => {
+            if (cell === null) return '-';
+            if (cell === 'black') return 'N';
+            if (cell === 'white') return 'B';
+            return cell;
+        });
+
+        const processedGameState = {
+            board: flatBoard,
+            currentTurn: gameState.currentTurn === 'black' ? 'N' : 'B',
+        };
+        console.log('Sending gameState to the server:');
+        console.log(processedGameState);
+        const response = await fetch(server_endpoint, {
             method: 'POST',
-            body: JSON.stringify(gameState),
+            body: JSON.stringify(processedGameState),
             headers: { 'Content-Type': 'application/json' },
         });
-        const move = await response.json();
-
-        return move;
+        const responseData = await response.json();
+        console.log('Received move from the server:');
+        console.log(responseData);
+        // Process the received move
+        const rawMove = responseData.move;
+        const processedMove = [];
+        for (let i = 0; i < rawMove.length; i += 2) {
+            processedMove.push({
+                row: rawMove[i] - 1,
+                col: rawMove[i + 1] - 1,
+            });
+        }
+        console.log('Processed move:');
+        console.log(processedMove);
+        return processedMove;
     }
 
     getPlayerType(): PlayerType {
@@ -126,6 +153,8 @@ export function createPlayer(type: PlayerType, color: PlayerColor): Player {
             return new HumanPlayer(color);
         case 'local-agent':
             return new RandomAgentPlayer(color);
+        case 'server-bot':
+            return new ServerAgentPlayer(color);
         default:
             throw new Error('Invalid player type');
     }

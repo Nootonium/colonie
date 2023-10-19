@@ -14,7 +14,7 @@ function Home() {
                 className="absolute left-0 top-0 -z-10 h-full w-full object-cover object-center"
             />
 
-            <Game whitePlayerType="human" blackPlayerType="human" />
+            <Game whitePlayerType="human" blackPlayerType="server-bot" />
 
             <div className="absolute left-8 top-8 z-30" onClick={() => setIsSettingsOpen(true)}>
                 <Cog6ToothIcon className="h-14 w-14 text-white" />

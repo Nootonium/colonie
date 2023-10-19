@@ -74,12 +74,12 @@ const Game = ({ whitePlayerType, blackPlayerType }: GameProps) => {
             const moveSuccessful = game.makeMove(start, destination);
 
             if (moveSuccessful) {
-                console.log(game.getScores());
+                // console.log(game.getScores());
                 deselectPiece();
                 setFeedback('');
                 changePlayerTurn();
             } else {
-                console.error('Invalid destination.');
+                // console.error('Invalid destination.');
                 setFeedback("Can't move there.");
             }
         },
