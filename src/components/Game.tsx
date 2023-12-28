@@ -90,6 +90,8 @@ const Game = ({ whitePlayerType, blackPlayerType }: GameProps) => {
             if (currentPlayer.getPlayerType() !== 'human') {
                 try {
                     const movePositions = await currentPlayer.makeMove(game);
+                    // console.log(movePositions);
+
                     if (movePositions && movePositions.length === 2) {
                         attemptMoveTo(movePositions[0], movePositions[1]);
                     }
